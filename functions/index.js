@@ -22,7 +22,7 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-// STEP 1 - Auth URL
+// Auth URL
 exports.auth = functions.https.onRequest((request, response) => {
   const { url, codeVerifier, state } = twitterClient.generateOAuth2AuthLink(
     callbackURL,
@@ -34,7 +34,6 @@ exports.auth = functions.https.onRequest((request, response) => {
   response.redirect(url);
 });
 
-// STEP 2 - Verify callback code, store access_token 
 exports.callback = functions.https.onRequest((request, response) => {
   const { state, code } = request.query;
 
@@ -57,12 +56,12 @@ exports.callback = functions.https.onRequest((request, response) => {
 
   await dbRef.set({ accessToken, refreshToken });
 
-  const { data } = await loggedClient.v2.me(); // start using the client if you want
+  const { data } = await loggedClient.v2.me();
 
   response.send(data);
 });
 
-// STEP 3 - Refresh tokens and post tweets
+// Refresh tokens and post tweets
 exports.tweet = functions.https.onRequest((request, response) => {
   const { refreshToken } = (await dbRef.get()).data();
 
